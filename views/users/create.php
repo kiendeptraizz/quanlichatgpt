@@ -71,6 +71,24 @@
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set ngày hiện tại cho ngày bắt đầu
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('start_date').value = today;
+
+            // Thêm các event listeners
+            document.getElementById('start_date').addEventListener('change', function() {
+                calculateEndDate();
+            });
+
+            document.getElementById('subscription_plan').addEventListener('input', function() {
+                calculateEndDate();
+            });
+
+            // Khởi tạo ban đầu
+            calculateEndDate();
+        });
+
         function calculateEndDate() {
             const startDate = document.getElementById('start_date').value;
             const monthsInput = document.getElementById('subscription_plan').value;
@@ -81,76 +99,8 @@
                 date.setMonth(date.getMonth() + months);
                 const endDate = date.toISOString().split('T')[0];
                 document.getElementById('end_date').value = endDate;
-                console.log('Đã tính ngày kết thúc:', endDate); // Debug log
             }
         }
-
-        function updateAccountsList() {
-            const startDate = document.getElementById('start_date').value;
-            if (startDate) {
-                const monthYear = startDate.substring(0, 7) + '-01';
-
-                // Thêm debug log
-                console.log('Đang tải danh sách tài khoản cho tháng:', monthYear);
-
-                fetch(`index.php?action=getAvailableAccounts&month_year=${monthYear}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(accounts => {
-                        console.log('Danh sách tài khoản nhận được:', accounts); // Debug log
-
-                        const accountSelect = document.getElementById('account');
-                        accountSelect.innerHTML = '<option value="">Chọn tài khoản</option>';
-
-                        if (accounts && accounts.length > 0) {
-                            accounts.forEach(account => {
-                                const option = document.createElement('option');
-                                option.value = account.account_name;
-                                option.textContent = account.account_name;
-                                accountSelect.appendChild(option);
-                            });
-                            console.log('Đã cập nhật select với', accounts.length, 'tài khoản');
-                        } else {
-                            const option = document.createElement('option');
-                            option.value = "";
-                            option.textContent = "Không có tài khoản khả dụng cho tháng này";
-                            accountSelect.appendChild(option);
-                            console.log('Không có tài khoản khả dụng');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Lỗi khi tải danh sách tài khoản:', error);
-                        const accountSelect = document.getElementById('account');
-                        accountSelect.innerHTML = '<option value="">Lỗi khi tải danh sách tài khoản</option>';
-                    });
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set ngày hiện tại cho ngày bắt đầu
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('start_date').value = today;
-
-            // Thêm các event listeners
-            document.getElementById('start_date').addEventListener('change', function() {
-                console.log('Ngày bắt đầu thay đổi:', this.value); // Debug log
-                calculateEndDate();
-                updateAccountsList();
-            });
-
-            document.getElementById('subscription_plan').addEventListener('input', function() {
-                console.log('Số tháng thay đổi:', this.value); // Debug log
-                calculateEndDate();
-            });
-
-            // Khởi tạo ban đầu
-            calculateEndDate();
-            updateAccountsList();
-        });
     </script>
 </body>
 

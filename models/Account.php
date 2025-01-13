@@ -9,33 +9,31 @@ class Account
         $this->conn = $db;
     }
 
-    public function getAvailableAccounts($month_year)
+    public function getAvailableAccounts()
     {
-        $query = "SELECT a.*, 
-                  (SELECT COUNT(*) FROM users u 
-                   WHERE u.account = a.account_name 
-                   AND DATE_FORMAT(u.start_date, '%Y-%m-01') = a.month_year) as user_count 
+        $query = "SELECT DISTINCT a.*, 
+                  (SELECT COUNT(*) FROM users u WHERE u.account = a.account_name) as user_count 
                   FROM " . $this->table_name . " a 
-                  WHERE a.month_year = ?";
+                  WHERE a.status = 'available'";
+
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $month_year);
         $stmt->execute();
         return $stmt;
     }
 
-    public function addMonthlyAccounts($month_year, $accounts, $start_date, $end_date)
+    public function addMonthlyAccounts($accounts, $start_date, $end_date)
     {
         try {
             $this->conn->beginTransaction();
 
             // Kiểm tra tài khoản đã tồn tại
             $checkQuery = "SELECT account_name FROM " . $this->table_name . " 
-                          WHERE account_name = :account_name AND month_year = :month_year";
+                          WHERE account_name = :account_name";
             $checkStmt = $this->conn->prepare($checkQuery);
 
             $insertQuery = "INSERT INTO " . $this->table_name . " 
-                           (account_name, month_year, status, start_date, end_date) 
-                           VALUES (:account_name, :month_year, 'available', :start_date, :end_date)";
+                           (account_name, status, start_date, end_date) 
+                           VALUES (:account_name, 'available', :start_date, :end_date)";
             $insertStmt = $this->conn->prepare($insertQuery);
 
             $inserted = false;
@@ -43,12 +41,10 @@ class Account
                 if (!empty(trim($account))) {
                     // Kiểm tra trùng lặp
                     $checkStmt->bindParam(':account_name', trim($account));
-                    $checkStmt->bindParam(':month_year', $month_year);
                     $checkStmt->execute();
 
                     if ($checkStmt->rowCount() == 0) {
                         $insertStmt->bindParam(':account_name', trim($account));
-                        $insertStmt->bindParam(':month_year', $month_year);
                         $insertStmt->bindParam(':start_date', $start_date);
                         $insertStmt->bindParam(':end_date', $end_date);
                         $insertStmt->execute();
@@ -70,20 +66,17 @@ class Account
         }
     }
 
-    public function updateAccountStatus($account_name, $month_year, $status)
+    public function updateAccountStatus($account_name, $status)
     {
         $query = "UPDATE " . $this->table_name . " 
                  SET status = :status 
-                 WHERE account_name = :account_name 
-                 AND month_year = :month_year";
+                 WHERE account_name = :account_name";
 
         $stmt = $this->conn->prepare($query);
-
-        $stmt->bindParam(":status", $status);
-        $stmt->bindParam(":account_name", $account_name);
-        $stmt->bindParam(":month_year", $month_year);
-
-        return $stmt->execute();
+        return $stmt->execute([
+            ':status' => $status,
+            ':account_name' => $account_name
+        ]);
     }
 
     public function deleteAccount($id)

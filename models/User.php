@@ -29,22 +29,27 @@ class User
 
     public function create()
     {
-        $query = "INSERT INTO " . $this->table_name . "
-                (username, subscription_plan, account, start_date, end_date, status, email, facebook_link)
-                VALUES (:username, :subscription_plan, :account, :start_date, :end_date, :status, :email, :facebook_link)";
+        try {
+            $query = "INSERT INTO " . $this->table_name . "
+                    (username, subscription_plan, account, start_date, end_date, status, email, facebook_link)
+                    VALUES (:username, :subscription_plan, :account, :start_date, :end_date, :status, :email, :facebook_link)";
 
-        $stmt = $this->conn->prepare($query);
+            $stmt = $this->conn->prepare($query);
 
-        $stmt->bindParam(":username", $this->username);
-        $stmt->bindParam(":subscription_plan", $this->subscription_plan);
-        $stmt->bindParam(":account", $this->account);
-        $stmt->bindParam(":start_date", $this->start_date);
-        $stmt->bindParam(":end_date", $this->end_date);
-        $stmt->bindParam(":status", $this->status);
-        $stmt->bindParam(":email", $this->email);
-        $stmt->bindParam(":facebook_link", $this->facebook_link);
+            $stmt->bindParam(":username", $this->username);
+            $stmt->bindParam(":subscription_plan", $this->subscription_plan);
+            $stmt->bindParam(":account", $this->account);
+            $stmt->bindParam(":start_date", $this->start_date);
+            $stmt->bindParam(":end_date", $this->end_date);
+            $stmt->bindParam(":status", $this->status);
+            $stmt->bindParam(":email", $this->email);
+            $stmt->bindParam(":facebook_link", $this->facebook_link);
 
-        return $stmt->execute();
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log("Database Error: " . $e->getMessage());
+            throw new Exception("Lỗi khi tạo người dùng");
+        }
     }
 
     public function getOne()
