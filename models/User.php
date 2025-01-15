@@ -63,38 +63,48 @@ class User
 
     public function update()
     {
-        $query = "UPDATE " . $this->table_name . "
-                SET username = :username,
-                    subscription_plan = :subscription_plan,
-                    account = :account,
-                    start_date = :start_date,
-                    end_date = :end_date,
-                    status = :status,
-                    email = :email,
-                    facebook_link = :facebook_link
-                WHERE id = :id";
+        try {
+            $query = "UPDATE " . $this->table_name . "
+                    SET username = :username,
+                        subscription_plan = :subscription_plan,
+                        account = :account,
+                        start_date = :start_date,
+                        end_date = :end_date,
+                        status = :status,
+                        email = :email,
+                        facebook_link = :facebook_link
+                    WHERE id = :id";
 
-        $stmt = $this->conn->prepare($query);
+            $stmt = $this->conn->prepare($query);
 
-        $stmt->bindParam(":id", $this->id);
-        $stmt->bindParam(":username", $this->username);
-        $stmt->bindParam(":subscription_plan", $this->subscription_plan);
-        $stmt->bindParam(":account", $this->account);
-        $stmt->bindParam(":start_date", $this->start_date);
-        $stmt->bindParam(":end_date", $this->end_date);
-        $stmt->bindParam(":status", $this->status);
-        $stmt->bindParam(":email", $this->email);
-        $stmt->bindParam(":facebook_link", $this->facebook_link);
+            $stmt->bindParam(":id", $this->id);
+            $stmt->bindParam(":username", $this->username);
+            $stmt->bindParam(":subscription_plan", $this->subscription_plan);
+            $stmt->bindParam(":account", $this->account);
+            $stmt->bindParam(":start_date", $this->start_date);
+            $stmt->bindParam(":end_date", $this->end_date);
+            $stmt->bindParam(":status", $this->status);
+            $stmt->bindParam(":email", $this->email);
+            $stmt->bindParam(":facebook_link", $this->facebook_link);
 
-        return $stmt->execute();
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log("Database Error: " . $e->getMessage());
+            throw new Exception("Lỗi khi cập nhật người dùng");
+        }
     }
 
     public function delete()
     {
-        $query = "DELETE FROM " . $this->table_name . " WHERE id = ?";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $this->id);
-        return $stmt->execute();
+        try {
+            $query = "DELETE FROM " . $this->table_name . " WHERE id = ?";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(1, $this->id);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log("Database Error: " . $e->getMessage());
+            throw new Exception("Lỗi khi xóa người dùng");
+        }
     }
 
     public function getExpiringUsers($days = 7)

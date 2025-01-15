@@ -65,8 +65,13 @@ class UserController
                     throw new Exception("Ngày kết thúc phải sau ngày bắt đầu");
                 }
 
-                $accounts = array_map('trim', explode(',', $_POST['accounts']));
-                $accounts = array_filter($accounts);
+                // Tách và lọc danh sách tài khoản
+                $accounts = array_filter(
+                    array_map('trim', explode("\n", $_POST['accounts'])),
+                    function ($account) {
+                        return !empty($account);
+                    }
+                );
 
                 if (empty($accounts)) {
                     throw new Exception("Danh sách tài khoản không hợp lệ");
@@ -74,61 +79,83 @@ class UserController
 
                 if ($this->account->addMonthlyAccounts($accounts, $start_date, $end_date)) {
                     $_SESSION['success'] = "Thêm tài khoản thành công";
-                    header("Location: index.php");
-                    exit();
-                } else {
-                    throw new Exception("Không thể thêm tài khoản");
                 }
             } catch (Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header("Location: index.php");
-                exit();
             }
+
+            header("Location: index.php");
+            exit();
         }
     }
 
     public function edit($id)
     {
-        $this->user->id = $id;
-        $userData = $this->user->getOne();
+        try {
+            $this->user->id = $id;
+            $userData = $this->user->getOne();
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->user->username = $_POST['username'];
-            $this->user->subscription_plan = $_POST['subscription_plan'];
-            $this->user->account = $_POST['account'];
-            $this->user->start_date = $_POST['start_date'];
-            $this->user->end_date = $_POST['end_date'];
-            $this->user->status = $_POST['status'];
-            $this->user->email = $_POST['email'];
-            $this->user->facebook_link = $_POST['facebook_link'];
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $this->user->username = $_POST['username'];
+                $this->user->subscription_plan = $_POST['subscription_plan'] . " tháng";
+                $this->user->account = $_POST['account'];
+                $this->user->start_date = $_POST['start_date'];
+                $this->user->end_date = $_POST['end_date'];
+                $this->user->status = $_POST['status'];
+                $this->user->email = $_POST['email'];
+                $this->user->facebook_link = $_POST['facebook_link'] ?? null;
 
-            if ($this->user->update()) {
-                header("Location: index.php?action=index");
+                if ($this->user->update()) {
+                    $_SESSION['success'] = "Cập nhật người dùng thành công";
+                    header("Location: index.php");
+                    exit();
+                } else {
+                    $_SESSION['error'] = "Cập nhật người dùng thất bại";
+                }
             }
+
+            require_once 'views/users/edit.php';
+        } catch (Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header("Location: index.php");
+            exit();
         }
-        require_once 'views/users/edit.php';
     }
 
     public function delete($id)
     {
-        $this->user->id = $id;
-        if ($this->user->delete()) {
-            header("Location: index.php?action=index");
+        try {
+            $this->user->id = $id;
+            if ($this->user->delete()) {
+                $_SESSION['success'] = "Xóa người dùng thành công";
+            } else {
+                $_SESSION['error'] = "Xóa người dùng thất bại";
+            }
+        } catch (Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
         }
+        header("Location: index.php");
+        exit();
     }
 
     public function getAvailableAccounts()
     {
         try {
-            $accounts = $this->account->getAvailableAccounts();
-            $accountList = $accounts->fetchAll(PDO::FETCH_ASSOC);
+            $stmt = $this->account->getAvailableAccounts();
+            $accounts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Chuyển đổi dữ liệu ngày tháng sang định dạng phù hợp
+            foreach ($accounts as &$account) {
+                $account['start_date'] = date('Y-m-d', strtotime($account['start_date']));
+                $account['end_date'] = date('Y-m-d', strtotime($account['end_date']));
+            }
+
             header('Content-Type: application/json');
-            echo json_encode($accountList);
+            echo json_encode($accounts);
         } catch (Exception $e) {
-            http_response_code(500);
+            header('HTTP/1.1 500 Internal Server Error');
             echo json_encode(['error' => $e->getMessage()]);
         }
-        exit;
     }
 
     public function deleteAccount($id)

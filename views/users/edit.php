@@ -83,13 +83,16 @@
             const date = new Date(startDate);
             date.setMonth(date.getMonth() + months);
 
-            // Định dạng ngày thành YYYY-MM-DD
-            const endDate = date.toISOString().split('T')[0];
-            document.getElementById('end_date').value = endDate;
+            // Đảm bảo định dạng ngày tháng đúng
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+
+            document.getElementById('end_date').value = `${year}-${month}-${day}`;
         }
     }
 
-    // Thêm sự kiện lắng nghe khi thay đổi ngày bắt đầu hoặc số tháng
+    // Thêm sự kiện lắng nghe
     document.getElementById('start_date').addEventListener('change', calculateEndDate);
     document.getElementById('subscription_plan').addEventListener('input', calculateEndDate);
 

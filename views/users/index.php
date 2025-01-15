@@ -20,6 +20,7 @@
         font-weight: bold;
     }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body>
@@ -61,22 +62,15 @@
                 </div>
                 <div class="card-body">
                     <!-- Form thêm tài khoản mới -->
-                    <form action="index.php?action=addAccounts" method="POST" class="mb-4">
+                    <form action="index.php?action=addAccounts" method="POST" class="mb-4" id="addAccountsForm">
                         <div class="row">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>Chọn tháng</label>
-                                    <input type="month" id="monthYearSelect" name="month_year" class="form-control"
-                                        required>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label>Ngày bắt đầu</label>
                                     <input type="date" name="start_date" class="form-control" required>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label>Ngày kết thúc</label>
                                     <input type="date" name="end_date" class="form-control" required>
@@ -85,10 +79,34 @@
                         </div>
                         <div class="form-group">
                             <label>Danh sách tài khoản (mỗi dòng một tài khoản)</label>
-                            <textarea name="accounts" class="form-control" rows="5" required></textarea>
+                            <textarea name="accounts" class="form-control" rows="5" required
+                                placeholder="Nhập mỗi tài khoản trên một dòng"></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary">Thêm tài khoản</button>
                     </form>
+
+                    <!-- Thêm JavaScript cho form -->
+                    <script>
+                    document.getElementById('addAccountsForm').addEventListener('submit', function(e) {
+                        e.preventDefault();
+
+                        const startDate = this.elements['start_date'].value;
+                        const endDate = this.elements['end_date'].value;
+                        const accounts = this.elements['accounts'].value;
+
+                        if (!startDate || !endDate || !accounts.trim()) {
+                            alert('Vui lòng nhập đầy đủ thông tin');
+                            return;
+                        }
+
+                        if (new Date(endDate) <= new Date(startDate)) {
+                            alert('Ngày kết thúc phải sau ngày bắt đầu');
+                            return;
+                        }
+
+                        this.submit();
+                    });
+                    </script>
 
                     <!-- Danh sách tài khoản -->
                     <h6>Danh sách tài khoản trong tháng</h6>
@@ -136,10 +154,10 @@
                         <?php endif; ?>
                     </td>
                     <td>
-                        <button class="btn btn-warning btn-sm"
-                            onclick="editAccount(<?php echo $row['id']; ?>)">Sửa</button>
-                        <button class="btn btn-danger btn-sm"
-                            onclick="deleteAccount(<?php echo $row['id']; ?>)">Xóa</button>
+                        <a href="index.php?action=edit&id=<?php echo $row['id']; ?>"
+                            class="btn btn-warning btn-sm">Sửa</a>
+                        <button onclick="deleteUser(<?php echo $row['id']; ?>)"
+                            class="btn btn-danger btn-sm">Xóa</button>
                     </td>
                 </tr>
                 <?php endwhile; ?>
@@ -281,6 +299,12 @@
         console.log('Deleting account:', id); // Debug log
         if (confirm('Bạn có chắc chắn muốn xóa tài khoản này?')) {
             window.location.href = `index.php?action=deleteAccount&id=${id}`;
+        }
+    }
+
+    function deleteUser(id) {
+        if (confirm('Bạn có chắc chắn muốn xóa người dùng này không?')) {
+            window.location.href = 'index.php?action=delete&id=' + id;
         }
     }
 

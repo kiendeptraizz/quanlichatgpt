@@ -13,8 +13,7 @@ class Account
     {
         $query = "SELECT DISTINCT a.*, 
                   (SELECT COUNT(*) FROM users u WHERE u.account = a.account_name) as user_count 
-                  FROM " . $this->table_name . " a 
-                  WHERE a.status = 'available'";
+                  FROM " . $this->table_name . " a";
 
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
@@ -37,24 +36,32 @@ class Account
             $insertStmt = $this->conn->prepare($insertQuery);
 
             $inserted = false;
+            $duplicateAccounts = [];
+
             foreach ($accounts as $account) {
-                if (!empty(trim($account))) {
+                $account = trim($account);
+                if (!empty($account)) {
                     // Kiểm tra trùng lặp
-                    $checkStmt->bindParam(':account_name', trim($account));
+                    $checkStmt->bindValue(':account_name', $account);
                     $checkStmt->execute();
 
                     if ($checkStmt->rowCount() == 0) {
-                        $insertStmt->bindParam(':account_name', trim($account));
-                        $insertStmt->bindParam(':start_date', $start_date);
-                        $insertStmt->bindParam(':end_date', $end_date);
+                        $insertStmt->bindValue(':account_name', $account);
+                        $insertStmt->bindValue(':start_date', $start_date);
+                        $insertStmt->bindValue(':end_date', $end_date);
                         $insertStmt->execute();
                         $inserted = true;
+                    } else {
+                        $duplicateAccounts[] = $account;
                     }
                 }
             }
 
             if ($inserted) {
                 $this->conn->commit();
+                if (!empty($duplicateAccounts)) {
+                    throw new Exception("Một số tài khoản đã tồn tại: " . implode(", ", $duplicateAccounts));
+                }
                 return true;
             } else {
                 throw new Exception("Không có tài khoản mới nào được thêm");
