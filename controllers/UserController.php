@@ -127,14 +127,13 @@ class UserController
         try {
             $this->user->id = $id;
             if ($this->user->delete()) {
-                $_SESSION['success'] = "Xóa người dùng thành công";
+                echo json_encode(['success' => true, 'message' => 'Xóa người dùng thành công']);
             } else {
-                $_SESSION['error'] = "Xóa người dùng thất bại";
+                echo json_encode(['success' => false, 'error' => 'Xóa người dùng thất bại']);
             }
         } catch (Exception $e) {
-            $_SESSION['error'] = $e->getMessage();
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
-        header("Location: index.php");
         exit();
     }
 
@@ -197,31 +196,32 @@ class UserController
 
     public function getAccountUsers()
     {
-        if (isset($_GET['account_name']) && isset($_GET['month_year'])) {
-            try {
-                $users = $this->account->getUsersByAccount(
-                    $_GET['account_name'],
-                    $_GET['month_year']
-                );
-                header('Content-Type: application/json');
-                echo json_encode($users);
-            } catch (Exception $e) {
-                http_response_code(500);
-                echo json_encode(['error' => $e->getMessage()]);
-            }
-            exit;
+        try {
+            $accountName = $_GET['account_name'];
+            $monthYear = $_GET['month_year'];
+            $users = $this->account->getUsersByAccount($accountName, $monthYear);
+            echo json_encode($users);
+        } catch (Exception $e) {
+            echo json_encode(['error' => $e->getMessage()]);
         }
+        exit();
     }
 
     public function getExpiringUsers()
     {
-        $users = $this->user->getExpiringUsers();
+        try {
+            $users = $this->user->getExpiringUsers();
 
-        // Debug log để kiểm tra số lượng người dùng được lấy ra
-        $userCount = $users->rowCount();
-        error_log('Number of expiring users fetched: ' . $userCount);
+            if ($users->rowCount() == 0) {
+                $_SESSION['info'] = "Không có người dùng nào sắp hết hạn trong 7 ngày tới";
+            }
 
-        require_once 'views/users/expiring.php';
+            require_once 'views/users/expiring.php';
+        } catch (Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header("Location: index.php");
+            exit();
+        }
     }
 
     public function ajaxEditAccount()

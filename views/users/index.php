@@ -5,20 +5,20 @@
     <title>Quản lý người dùng</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-    .table th,
-    .table td {
-        vertical-align: middle;
-    }
+        .table th,
+        .table td {
+            vertical-align: middle;
+        }
 
-    .status-active {
-        color: green;
-        font-weight: bold;
-    }
+        .status-active {
+            color: green;
+            font-weight: bold;
+        }
 
-    .status-expired {
-        color: red;
-        font-weight: bold;
-    }
+        .status-expired {
+            color: red;
+            font-weight: bold;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -26,21 +26,21 @@
 <body>
     <div class="container mt-4">
         <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success">
-            <?php
+            <div class="alert alert-success">
+                <?php
                 echo $_SESSION['success'];
                 unset($_SESSION['success']);
                 ?>
-        </div>
+            </div>
         <?php endif; ?>
 
         <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-danger">
-            <?php
+            <div class="alert alert-danger">
+                <?php
                 echo $_SESSION['error'];
                 unset($_SESSION['error']);
                 ?>
-        </div>
+            </div>
         <?php endif; ?>
 
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -87,25 +87,25 @@
 
                     <!-- Thêm JavaScript cho form -->
                     <script>
-                    document.getElementById('addAccountsForm').addEventListener('submit', function(e) {
-                        e.preventDefault();
+                        document.getElementById('addAccountsForm').addEventListener('submit', function(e) {
+                            e.preventDefault();
 
-                        const startDate = this.elements['start_date'].value;
-                        const endDate = this.elements['end_date'].value;
-                        const accounts = this.elements['accounts'].value;
+                            const startDate = this.elements['start_date'].value;
+                            const endDate = this.elements['end_date'].value;
+                            const accounts = this.elements['accounts'].value;
 
-                        if (!startDate || !endDate || !accounts.trim()) {
-                            alert('Vui lòng nhập đầy đủ thông tin');
-                            return;
-                        }
+                            if (!startDate || !endDate || !accounts.trim()) {
+                                alert('Vui lòng nhập đầy đủ thông tin');
+                                return;
+                            }
 
-                        if (new Date(endDate) <= new Date(startDate)) {
-                            alert('Ngày kết thúc phải sau ngày bắt đầu');
-                            return;
-                        }
+                            if (new Date(endDate) <= new Date(startDate)) {
+                                alert('Ngày kết thúc phải sau ngày bắt đầu');
+                                return;
+                            }
 
-                        this.submit();
-                    });
+                            this.submit();
+                        });
                     </script>
 
                     <!-- Danh sách tài khoản -->
@@ -135,31 +135,31 @@
             </thead>
             <tbody>
                 <?php while ($row = $users->fetch(PDO::FETCH_ASSOC)): ?>
-                <tr>
-                    <td><?php echo $row['id']; ?></td>
-                    <td><?php echo $row['username']; ?></td>
-                    <td><?php echo $row['subscription_plan']; ?></td>
-                    <td><?php echo $row['account']; ?></td>
-                    <td><?php echo date('d/m/Y', strtotime($row['start_date'])); ?></td>
-                    <td><?php echo date('d/m/Y', strtotime($row['end_date'])); ?></td>
-                    <td>
-                        <span class="status-<?php echo ($row['status'] == 'còn hiệu lực') ? 'active' : 'expired'; ?>">
-                            <?php echo $row['status']; ?>
-                        </span>
-                    </td>
-                    <td><?php echo $row['email']; ?></td>
-                    <td>
-                        <?php if ($row['facebook_link']): ?>
-                        <a href="<?php echo $row['facebook_link']; ?>" target="_blank">Link</a>
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <a href="index.php?action=edit&id=<?php echo $row['id']; ?>"
-                            class="btn btn-warning btn-sm">Sửa</a>
-                        <button onclick="deleteUser(<?php echo $row['id']; ?>)"
-                            class="btn btn-danger btn-sm">Xóa</button>
-                    </td>
-                </tr>
+                    <tr>
+                        <td><?php echo $row['id']; ?></td>
+                        <td><?php echo $row['username']; ?></td>
+                        <td><?php echo $row['subscription_plan']; ?></td>
+                        <td><?php echo $row['account']; ?></td>
+                        <td><?php echo date('d/m/Y', strtotime($row['start_date'])); ?></td>
+                        <td><?php echo date('d/m/Y', strtotime($row['end_date'])); ?></td>
+                        <td>
+                            <span class="status-<?php echo ($row['status'] == 'còn hiệu lực') ? 'active' : 'expired'; ?>">
+                                <?php echo $row['status']; ?>
+                            </span>
+                        </td>
+                        <td><?php echo $row['email']; ?></td>
+                        <td>
+                            <?php if ($row['facebook_link']): ?>
+                                <a href="<?php echo $row['facebook_link']; ?>" target="_blank">Link</a>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <a href="index.php?action=edit&id=<?php echo $row['id']; ?>"
+                                class="btn btn-warning btn-sm">Sửa</a>
+                            <button onclick="deleteUser(<?php echo $row['id']; ?>)"
+                                class="btn btn-danger btn-sm">Xóa</button>
+                        </td>
+                    </tr>
                 <?php endwhile; ?>
             </tbody>
         </table>
@@ -170,18 +170,18 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
-    function loadAccounts(monthYear) {
-        fetch(`index.php?action=getAvailableAccounts&month_year=${monthYear}-01`)
-            .then(response => response.json())
-            .then(accounts => {
-                const accountsList = document.getElementById('accountsList');
-                accountsList.innerHTML = '';
+        function loadAccounts(monthYear) {
+            fetch(`index.php?action=getAvailableAccounts&month_year=${monthYear}-01`)
+                .then(response => response.json())
+                .then(accounts => {
+                    const accountsList = document.getElementById('accountsList');
+                    accountsList.innerHTML = '';
 
-                if (accounts && accounts.length > 0) {
-                    accounts.forEach(account => {
-                        const col = document.createElement('div');
-                        col.className = 'col-md-3 mb-3';
-                        col.innerHTML = `
+                    if (accounts && accounts.length > 0) {
+                        accounts.forEach(account => {
+                            const col = document.createElement('div');
+                            col.className = 'col-md-3 mb-3';
+                            col.innerHTML = `
                             <div class="card">
                                 <div class="card-body">
                                     <h6 class="card-title">${account.account_name}</h6>
@@ -207,28 +207,26 @@
                                 </div>
                             </div>
                         `;
-                        accountsList.appendChild(col);
-                    });
-                } else {
+                            accountsList.appendChild(col);
+                        });
+                    } else {
+                        accountsList.innerHTML =
+                            '<div class="col-12"><p class="text-muted">Không có tài khoản nào trong tháng này</p></div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                     accountsList.innerHTML =
-                        '<div class="col-12"><p class="text-muted">Không có tài khoản nào trong tháng này</p></div>';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                accountsList.innerHTML =
-                    '<div class="col-12"><p class="text-danger">Có lỗi xảy ra khi tải danh sách tài khoản</p></div>';
-            });
-    }
+                        '<div class="col-12"><p class="text-danger">Có lỗi xảy ra khi tải danh sách tài khoản</p></div>';
+                });
+        }
 
-    function viewUsers(accountName, monthYear) {
-        console.log('Viewing users for:', accountName, monthYear); // Debug log
-        fetch(
-                `index.php?action=getAccountUsers&account_name=${encodeURIComponent(accountName)}&month_year=${monthYear}`
-            )
-            .then(response => response.json())
-            .then(users => {
-                const modalContent = `
+        function viewUsers(accountName, monthYear) {
+            fetch(
+                    `index.php?action=getAccountUsers&account_name=${encodeURIComponent(accountName)}&month_year=${monthYear}`)
+                .then(response => response.json())
+                .then(users => {
+                    const modalContent = `
                     <div class="modal fade" id="usersModal" tabindex="-1">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
@@ -245,6 +243,7 @@
                                                 <tr>
                                                     <th>Tên</th>
                                                     <th>Email</th>
+                                                    <th>Facebook</th>
                                                     <th>Ngày bắt đầu</th>
                                                     <th>Ngày kết thúc</th>
                                                     <th>Trạng thái</th>
@@ -256,11 +255,13 @@
                                                     <tr>
                                                         <td>${user.username}</td>
                                                         <td>${user.email}</td>
+                                                        <td>${user.facebook_link ? `<a href="${user.facebook_link}" target="_blank">Link</a>` : ''}</td>
                                                         <td>${new Date(user.start_date).toLocaleDateString()}</td>
                                                         <td>${new Date(user.end_date).toLocaleDateString()}</td>
                                                         <td>${user.status}</td>
                                                         <td>
                                                             <a href="index.php?action=edit&id=${user.id}" class="btn btn-warning btn-sm">Sửa</a>
+                                                            <button onclick="deleteUserFromModal(${user.id})" class="btn btn-danger btn-sm">Xóa</button>
                                                         </td>
                                                     </tr>
                                                 `).join('')}
@@ -273,53 +274,76 @@
                     </div>
                 `;
 
-                // Thêm modal vào body và hiển thị
-                const modalWrapper = document.createElement('div');
-                modalWrapper.innerHTML = modalContent;
-                document.body.appendChild(modalWrapper);
-                $('#usersModal').modal('show');
+                    // Thêm modal vào body và hiển thị
+                    const modalWrapper = document.createElement('div');
+                    modalWrapper.innerHTML = modalContent;
+                    document.body.appendChild(modalWrapper);
+                    $('#usersModal').modal('show');
 
-                // Xóa modal khi đóng
-                $('#usersModal').on('hidden.bs.modal', function() {
-                    this.remove();
+                    // Xóa modal khi đóng
+                    $('#usersModal').on('hidden.bs.modal', function() {
+                        this.remove();
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra khi tải danh sách người dùng');
                 });
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Có lỗi xảy ra khi tải danh sách người dùng');
+        }
+
+        function editAccount(id) {
+            console.log('Editing account:', id); // Debug log
+            window.location.href = `index.php?action=editAccount&id=${id}`;
+        }
+
+        function deleteAccount(id) {
+            console.log('Deleting account:', id); // Debug log
+            if (confirm('Bạn có chắc chắn muốn xóa tài khoản này?')) {
+                window.location.href = `index.php?action=deleteAccount&id=${id}`;
+            }
+        }
+
+        function deleteUser(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa người dùng này không?')) {
+                window.location.href = 'index.php?action=delete&id=' + id;
+            }
+        }
+
+        // Thêm hàm xóa người dùng từ modal
+        function deleteUserFromModal(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa người dùng này không?')) {
+                fetch(`index.php?action=delete&id=${id}`, {
+                        method: 'GET'
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            // Tải lại modal
+                            $('#usersModal').modal('hide');
+                            location.reload();
+                        } else {
+                            alert(result.error || 'Có lỗi xảy ra khi xóa người dùng');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Có lỗi xảy ra khi xóa người dùng');
+                    });
+            }
+        }
+
+        // Khởi tạo khi trang load
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentDate = new Date();
+            const currentMonthYear =
+                `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+            loadAccounts(currentMonthYear);
+
+            // Thêm event listener cho input tháng
+            document.getElementById('monthYearSelect').addEventListener('change', function() {
+                loadAccounts(this.value);
             });
-    }
-
-    function editAccount(id) {
-        console.log('Editing account:', id); // Debug log
-        window.location.href = `index.php?action=editAccount&id=${id}`;
-    }
-
-    function deleteAccount(id) {
-        console.log('Deleting account:', id); // Debug log
-        if (confirm('Bạn có chắc chắn muốn xóa tài khoản này?')) {
-            window.location.href = `index.php?action=deleteAccount&id=${id}`;
-        }
-    }
-
-    function deleteUser(id) {
-        if (confirm('Bạn có chắc chắn muốn xóa người dùng này không?')) {
-            window.location.href = 'index.php?action=delete&id=' + id;
-        }
-    }
-
-    // Khởi tạo khi trang load
-    document.addEventListener('DOMContentLoaded', function() {
-        const currentDate = new Date();
-        const currentMonthYear =
-            `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-        loadAccounts(currentMonthYear);
-
-        // Thêm event listener cho input tháng
-        document.getElementById('monthYearSelect').addEventListener('change', function() {
-            loadAccounts(this.value);
         });
-    });
     </script>
 </body>
 

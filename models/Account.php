@@ -158,7 +158,8 @@ class Account
 
     public function getUsersByAccount($account_name, $month_year)
     {
-        $query = "SELECT * FROM users 
+        $query = "SELECT id, username, email, facebook_link, start_date, end_date, status 
+                  FROM users 
                   WHERE account = :account_name 
                   AND DATE_FORMAT(start_date, '%Y-%m-01') = :month_year";
 

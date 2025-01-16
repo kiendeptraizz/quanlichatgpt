@@ -109,7 +109,11 @@ class User
 
     public function getExpiringUsers($days = 7)
     {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE end_date <= DATE_ADD(CURDATE(), INTERVAL :days DAY)";
+        $query = "SELECT id, username, email, facebook_link, end_date, status 
+                  FROM " . $this->table_name . " 
+                  WHERE end_date <= DATE_ADD(CURDATE(), INTERVAL :days DAY)
+                  ORDER BY end_date ASC";
+
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':days', $days, PDO::PARAM_INT);
         $stmt->execute();
